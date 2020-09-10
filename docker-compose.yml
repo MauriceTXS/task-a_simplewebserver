@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  webserver1:
+    build:
+        dockerfile: Dockerfile
+        context: ./webserver1
+    image: mtxs/webserver1:1.0
+    volumes:
+        - ./webserver1/html_files:/usr/share/nginx/html
+        - ./webserver1/default.conf:/etc/nginx/conf.d/default.conf
+    container_name: webserver1
+    ports:
+      - 11111:11111
+    restart: unless-stopped
+  webserver2:
+    build:
+        dockerfile: Dockerfile
+        context: ./webserver2
+    image: mtxs/webserver2:1.0
+    volumes:
+        - ./webserver2/html_files:/usr/share/nginx/html
+        - ./webserver2/default.conf:/etc/nginx/conf.d/default.conf
+    container_name: webserver2
+    ports:
+      - 22222:22222
+    restart: unless-stopped
+  reverseproxy:
+    build:
+      dockerfile: Dockerfile
+      context: ./reverseproxy
+    image: mtxs/reverseproxy:1.0
+    volumes:
+      - ./reverseproxy/default.conf:/etc/nginx/conf.d/default.conf
+    container_name: reverseproxy
+    ports:
+      - 80:80
+    restart: always
+    depends_on:
+      - webserver1
+      - webserver2
